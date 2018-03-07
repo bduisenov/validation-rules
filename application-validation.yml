@@ -1,0 +1,8 @@
+validation.rules:
+  emailValidation: 
+    in: String 
+    out: Boolean 
+    lambda: | 
+      String val -> {
+          return val.length() > 1 && val.contains("@");
+      }
