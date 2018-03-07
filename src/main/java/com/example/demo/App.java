@@ -102,7 +102,7 @@ public class App {
             String in = parameters.get(0).getType().asString();
             String out = mainMethod.getType().asString();
 
-            LambdaExpr lambda = new LambdaExpr(parameters, methodBody.get(), false);
+            LambdaExpr lambda = new LambdaExpr(parameters, methodBody.get(), true);
 
             StringBuilder lambdaString = new StringBuilder();
             for (String line : lambda.toString().split("\n")) {
