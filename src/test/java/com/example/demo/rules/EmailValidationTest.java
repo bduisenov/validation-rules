@@ -3,6 +3,8 @@ package com.example.demo.rules;
 import com.example.demo.rules.EmailValidation;
 import org.junit.Test;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.*;
 
 public class EmailValidationTest {
@@ -11,9 +13,9 @@ public class EmailValidationTest {
 
     @Test
     public void validation_works() throws Exception {
-        Boolean result = validation.apply("some@email.com");
+        Optional<String> result = validation.apply("some@email.com");
 
-        assertThat(result).isTrue();
+        assertThat(result.isPresent()).isFalse();
     }
 
 }

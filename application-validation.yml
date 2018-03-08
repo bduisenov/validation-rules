@@ -1,8 +1,15 @@
-validation.rules:
-  emailValidation: 
-    in: String 
-    out: Boolean 
-    lambda: | 
-      (String val) -> {
-          return val.length() > 1 && val.contains("@");
-      }
+spring.cloud.function:
+  compile:
+    emailValidation: 
+      inputType: String 
+      outputType: Optional<String> 
+      lambda: | 
+        (String val) -> {
+            if (val.length() <= 1) {
+                return Optional.of("Length must be greater than 1 char");
+            }
+            if (!(val.contains("@"))) {
+                return Optional.of("Email must contain @ symbol");
+            }
+            return Optional.empty();
+        }

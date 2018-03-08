@@ -27,10 +27,10 @@ import static java.util.stream.Collectors.toList;
 public class App {
 
     static String template = "" +
-            "  {0}: \n" +
-            "    in: {1} \n" +
-            "    out: {2} \n" +
-            "    lambda: | \n" +
+            "    {0}: \n" +
+            "      inputType: {1} \n" +
+            "      outputType: {2} \n" +
+            "      lambda: | \n" +
             "{3}";
 
     static PathMatcher matcher = FileSystems.getDefault()
@@ -49,7 +49,7 @@ public class App {
                 }
             }
 
-            String content = "validation.rules:\n" + rules;
+            String content = "spring.cloud.function:\n  compile:\n" + rules;
 
             try (PrintStream out = new PrintStream(new FileOutputStream("./application-validation.yml"))) {
                 out.print(content);
@@ -106,7 +106,7 @@ public class App {
 
             StringBuilder lambdaString = new StringBuilder();
             for (String line : lambda.toString().split("\n")) {
-                lambdaString.append("      ").append(line).append('\n');
+                lambdaString.append("        ").append(line).append('\n');
             }
 
             return format(template, validationRuleName, in, out, lambdaString);
