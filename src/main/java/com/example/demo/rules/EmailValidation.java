@@ -2,7 +2,7 @@ package com.example.demo.rules;
 
 import java.util.Optional;
 
-public class EmailValidation implements ValidationRule<String> {
+public class EmailValidation implements ValiRulBetween<String> {
 
     @Override
     public Optional<String> apply(String val) {
