@@ -71,7 +71,7 @@ public class App {
                 ftypFunctions.add(convert(implFun));
             }
 
-            System.out.println(implFuns);
+            System.out.println(ftypFunctions);
         } catch (IOException e) {
             throw new RuntimeException("Failed to traverse source folder");
         }
@@ -82,25 +82,37 @@ public class App {
         if (applyMethod == null) {
             throw new RuntimeException("Could not find main apply method");
         }
-        Parameter inType = applyMethod.getParameter(0);
+
+        if (applyMethod.getParameters().size() != 1) {
+            throw new RuntimeException("Function's arity is not supported");
+        }
+
+        Type inType = applyMethod.getParameter(0).getType();
         Type outType = applyMethod.getType();
 
-        Optional<BlockStmt> body = applyMethod.getBody();
-        LambdaExpr lambdaExpr = new LambdaExpr(applyMethod.getParameters(), body.get(), true);
+        Optional<BlockStmt> bodyOpt = applyMethod.getBody();
 
+        if (!bodyOpt.isPresent()) {
+            throw new RuntimeException("Failed to find #apply method");
+        }
 
+        LambdaExpr lambdaExpr = new LambdaExpr(applyMethod.getParameters(), bodyOpt.get(), true);
 
-        return new FtypFunction(inType.getNameAsString(), outType.getElementType().asString(), lambdaExpr.toString());
+        return new FtypFunction(inType.asString(), outType.asString(), lambdaExpr.toString());
     }
 
     private static MethodDeclaration findMainApplyMethod(ClassOrInterfaceDeclaration implFun) {
+        MethodDeclaration result = null;
+
         List<MethodDeclaration> applyMethods = implFun.getMethodsByName("apply");
         for (MethodDeclaration applyMethod : applyMethods) {
             if (applyMethod.getParameters().size() == 1) {
-                return applyMethod;
+                result = applyMethod;
+                break;
             }
         }
-        return null;
+
+        return result;
     }
 
     private static void traverse(List<CompilationUnit> cus, Set<ClassOrInterfaceDeclaration> implFuns) {
