@@ -1,4 +1,11 @@
 package com.example.demo.rules;
 
-public interface ValiRulBetween<T> extends ValidationRule<T> {
+import java.util.Optional;
+
+public interface ValiRulBetween extends ValidationRule<String> {
+
+    default Optional<String> apply(Long val) {
+        return apply(val.toString());
+    }
+
 }

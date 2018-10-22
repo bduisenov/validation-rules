@@ -9,6 +9,7 @@ import com.github.javaparser.ast.body.MethodDeclaration;
 import com.github.javaparser.ast.body.Parameter;
 import com.github.javaparser.ast.body.TypeDeclaration;
 import com.github.javaparser.ast.expr.LambdaExpr;
+import com.github.javaparser.ast.expr.MethodCallExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.type.Type;
@@ -44,10 +45,8 @@ public class App {
                 new ReflectionTypeSolver()
         ));
 
-        ParserConfiguration parserConf = new ParserConfiguration();
-        parserConf.setSymbolResolver(symbolResolver);
-
-        JavaParser.setStaticConfiguration(parserConf);
+        JavaParser.getStaticConfiguration()
+                .setSymbolResolver(symbolResolver);
     }
 
     // mvn exec:exec -Dexec.executable=java -Dexec.args="-classpath target/classes com.example.demo.App"
@@ -79,6 +78,7 @@ public class App {
 
     private static FtypFunction convert(ClassOrInterfaceDeclaration implFun) {
         MethodDeclaration applyMethod = findMainApplyMethod(implFun);
+
         if (applyMethod == null) {
             throw new RuntimeException("Could not find main apply method");
         }
@@ -86,6 +86,8 @@ public class App {
         if (applyMethod.getParameters().size() != 1) {
             throw new RuntimeException("Function's arity is not supported");
         }
+
+        BlockStmt block = inline(applyMethod);
 
         Type inType = applyMethod.getParameter(0).getType();
         Type outType = applyMethod.getType();
@@ -101,7 +103,21 @@ public class App {
         return new FtypFunction(inType.asString(), outType.asString(), lambdaExpr.toString());
     }
 
+    private static BlockStmt inline(MethodDeclaration applyMethod) {
+        CompilationUnit compilationUnit = applyMethod.findCompilationUnit().get();
+
+        List<MethodCallExpr> usedMethods = applyMethod.findAll(MethodCallExpr.class);
+
+        return null;
+    }
+
     private static MethodDeclaration findMainApplyMethod(ClassOrInterfaceDeclaration implFun) {
+        Optional<CompilationUnit> compilationUnitOpt = implFun.findCompilationUnit();
+        if (!compilationUnitOpt.isPresent()) {
+            throw new RuntimeException("CompilationUnit was not found for " + implFun);
+        }
+
+        CompilationUnit compilationUnit = compilationUnitOpt.get();
         MethodDeclaration result = null;
 
         List<MethodDeclaration> applyMethods = implFun.getMethodsByName("apply");
